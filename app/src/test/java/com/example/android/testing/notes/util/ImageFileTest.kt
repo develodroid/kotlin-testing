@@ -16,26 +16,21 @@
 
 package com.example.android.testing.notes.util
 
+import android.os.Environment
+import org.hamcrest.CoreMatchers.*
+import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mock
-import org.powermock.core.classloader.annotations.PrepareForTest
-import org.powermock.modules.junit4.PowerMockRunner
-
-import android.os.Environment
-
-import java.io.File
-import java.io.IOException
-
-import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.CoreMatchers.notNullValue
-import org.hamcrest.CoreMatchers.nullValue
-import org.junit.Assert.assertThat
 import org.mockito.Matchers.anyString
 import org.mockito.Matchers.eq
-import org.powermock.api.mockito.PowerMockito.mockStatic
+import org.mockito.Mock
 import org.powermock.api.mockito.PowerMockito.`when`
+import org.powermock.api.mockito.PowerMockito.mockStatic
+import org.powermock.core.classloader.annotations.PrepareForTest
+import org.powermock.modules.junit4.PowerMockRunner
+import java.io.File
+import java.io.IOException
 
 /**
  * Unit tests for the implementation of [ImageFileImpl].

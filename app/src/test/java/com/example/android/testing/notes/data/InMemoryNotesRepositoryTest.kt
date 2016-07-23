@@ -17,44 +17,47 @@
 package com.example.android.testing.notes.data
 
 import com.google.common.collect.Lists
-
+import org.hamcrest.Matchers.`is`
+import org.hamcrest.Matchers.nullValue
+import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentCaptor
 import org.mockito.Captor
-import org.mockito.Mock
-import org.mockito.MockitoAnnotations
-
-import org.hamcrest.Matchers.`is`
-import org.hamcrest.Matchers.nullValue
-import org.junit.Assert.assertThat
 import org.mockito.Matchers.any
 import org.mockito.Matchers.eq
+import org.mockito.Mock
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
+import org.mockito.MockitoAnnotations
 
 /**
  * Unit tests for the implementation of the in-memory repository with cache.
  */
 class InMemoryNotesRepositoryTest {
 
-    private var mNotesRepository: InMemoryNotesRepository? = null
+    private val NOTE_TITLE = "title"
+
+    private val NOTES = Lists.newArrayList(Note("Title1", "Description1"),
+            Note("Title2", "Description2"))
+
+    lateinit private var mNotesRepository: InMemoryNotesRepository
 
     @Mock
-    private val mServiceApi: NotesServiceApiImpl? = null
+    private val mServiceApi: NotesServiceApiImpl ? = null
 
     @Mock
-    private val mGetNoteCallback: NotesRepository.GetNoteCallback? = null
+    private val mGetNoteCallback: NotesRepository.GetNoteCallback ? = null
 
     @Mock
-    private val mLoadNotesCallback: NotesRepository.LoadNotesCallback? = null
+    private val mLoadNotesCallback : NotesRepository.LoadNotesCallback ? = null
 
     /**
      * [ArgumentCaptor] is a powerful Mockito API to capture argument values and use them to
      * perform further actions or assertions on them.
      */
     @Captor
-    private val mNotesServiceCallbackCaptor: ArgumentCaptor<NotesServiceApi.NotesServiceCallback<*>>? = null
+    private val mNotesServiceCallbackCaptor: ArgumentCaptor<NotesServiceApi.NotesServiceCallback<List<Note>>>? = null
 
     @Before
     fun setupNotesRepository() {
@@ -70,32 +73,32 @@ class InMemoryNotesRepositoryTest {
     fun getNotes_repositoryCachesAfterFirstApiCall() {
         // Given a setup Captor to capture callbacks
         // When two calls are issued to the notes repository
-        twoLoadCallsToRepository(mLoadNotesCallback)
+        twoLoadCallsToRepository(mLoadNotesCallback!!)
 
         // Then notes where only requested once from Service API
-        verify<NotesServiceApiImpl>(mServiceApi).getAllNotes(any<NotesServiceApi.NotesServiceCallback<*>>(NotesServiceApi.NotesServiceCallback<*>::class.java))
+        verify<NotesServiceApiImpl>(mServiceApi).getAllNotes(any(NotesServiceApi.NotesServiceCallback::class.java))
     }
 
     @Test
     fun invalidateCache_DoesNotCallTheServiceApi() {
         // Given a setup Captor to capture callbacks
-        twoLoadCallsToRepository(mLoadNotesCallback)
+        twoLoadCallsToRepository(mLoadNotesCallback!!)
 
         // When data refresh is requested
-        mNotesRepository!!.refreshData()
-        mNotesRepository!!.getNotes(mLoadNotesCallback!!) // Third call to API
+        mNotesRepository.refreshData()
+        mNotesRepository.getNotes(mLoadNotesCallback!!) // Third call to API
 
         // The notes where requested twice from the Service API (Caching on first and third call)
-        verify<NotesServiceApiImpl>(mServiceApi, times(2)).getAllNotes(any<NotesServiceApi.NotesServiceCallback<*>>(NotesServiceApi.NotesServiceCallback<*>::class.java))
+        verify<NotesServiceApiImpl>(mServiceApi, times(2)).getAllNotes(any(NotesServiceApi.NotesServiceCallback::class.java))
     }
 
     @Test
     fun getNotes_requestsAllNotesFromServiceApi() {
         // When notes are requested from the notes repository
-        mNotesRepository!!.getNotes(mLoadNotesCallback!!)
+        mNotesRepository.getNotes(mLoadNotesCallback!!)
 
         // Then notes are loaded from the service API
-        verify<NotesServiceApiImpl>(mServiceApi).getAllNotes(any<NotesServiceApi.NotesServiceCallback<*>>(NotesServiceApi.NotesServiceCallback<*>::class.java))
+        verify<NotesServiceApiImpl>(mServiceApi).getAllNotes(any(NotesServiceApi.NotesServiceCallback::class.java))
     }
 
     @Test
@@ -104,19 +107,19 @@ class InMemoryNotesRepositoryTest {
         val newNote = Note(NOTE_TITLE, "Some Note Description")
 
         // When a note is saved to the notes repository
-        mNotesRepository!!.saveNote(newNote)
+        mNotesRepository.saveNote(newNote)
 
         // Then the notes cache is cleared
-        assertThat(mNotesRepository!!.mCachedNotes, `is`(nullValue()))
+        assertThat(mNotesRepository.mCachedNotes, `is`(nullValue()))
     }
 
     @Test
     fun getNote_requestsSingleNoteFromServiceApi() {
         // When a note is requested from the notes repository
-        mNotesRepository!!.getNote(NOTE_TITLE, mGetNoteCallback!!)
+        mNotesRepository.getNote(NOTE_TITLE, mGetNoteCallback!!)
 
         // Then the note is loaded from the service API
-        verify<NotesServiceApiImpl>(mServiceApi).getNote(eq(NOTE_TITLE), any<NotesServiceApi.NotesServiceCallback<*>>(NotesServiceApi.NotesServiceCallback<*>::class.java))
+        verify<NotesServiceApiImpl>(mServiceApi).getNote(eq(NOTE_TITLE), any(NotesServiceApi.NotesServiceCallback::class.java))
     }
 
     /**
@@ -124,7 +127,7 @@ class InMemoryNotesRepositoryTest {
      */
     private fun twoLoadCallsToRepository(callback: NotesRepository.LoadNotesCallback) {
         // When notes are requested from repository
-        mNotesRepository!!.getNotes(callback) // First call to API
+        mNotesRepository.getNotes(callback) // First call to API
 
         // Use the Mockito Captor to capture the callback
         verify<NotesServiceApiImpl>(mServiceApi).getAllNotes(mNotesServiceCallbackCaptor!!.capture())
@@ -132,15 +135,7 @@ class InMemoryNotesRepositoryTest {
         // Trigger callback so notes are cached
         mNotesServiceCallbackCaptor.value.onLoaded(NOTES)
 
-        mNotesRepository!!.getNotes(callback) // Second call to API
-    }
-
-    companion object {
-
-        private val NOTE_TITLE = "title"
-
-        private val NOTES = Lists.newArrayList(Note("Title1", "Description1"),
-                Note("Title2", "Description2"))
+        mNotesRepository.getNotes(callback) // Second call to API
     }
 
 }

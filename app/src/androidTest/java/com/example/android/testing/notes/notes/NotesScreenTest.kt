@@ -16,36 +16,26 @@
 
 package com.example.android.testing.notes.notes
 
-import com.example.android.testing.notes.R
-
-import org.hamcrest.Description
-import org.hamcrest.Matcher
-import org.hamcrest.TypeSafeMatcher
-import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
-
+import android.support.test.espresso.Espresso.onView
+import android.support.test.espresso.action.ViewActions.*
+import android.support.test.espresso.assertion.ViewAssertions.matches
+import android.support.test.espresso.contrib.RecyclerViewActions.scrollTo
+import android.support.test.espresso.matcher.ViewMatchers.*
 import android.support.test.filters.LargeTest
 import android.support.test.rule.ActivityTestRule
 import android.support.test.runner.AndroidJUnit4
 import android.support.v7.widget.RecyclerView
 import android.text.TextUtils
 import android.view.View
-
-import android.support.test.espresso.Espresso.onView
-import android.support.test.espresso.action.ViewActions.click
-import android.support.test.espresso.action.ViewActions.closeSoftKeyboard
-import android.support.test.espresso.action.ViewActions.typeText
-import android.support.test.espresso.assertion.ViewAssertions.matches
-import android.support.test.espresso.contrib.RecyclerViewActions.scrollTo
-import android.support.test.espresso.matcher.ViewMatchers.hasDescendant
-import android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom
-import android.support.test.espresso.matcher.ViewMatchers.isDescendantOfA
-import android.support.test.espresso.matcher.ViewMatchers.isDisplayed
-import android.support.test.espresso.matcher.ViewMatchers.withId
-import android.support.test.espresso.matcher.ViewMatchers.withText
+import com.example.android.testing.notes.R
 import com.google.common.base.Preconditions.checkArgument
+import org.hamcrest.Description
+import org.hamcrest.Matcher
 import org.hamcrest.Matchers.allOf
+import org.hamcrest.TypeSafeMatcher
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
 
 /**
  * Tests for the notes screen, the main screen which contains a grid of all notes.
@@ -91,8 +81,8 @@ class NotesScreenTest {
      * Rules are interceptors which are executed for each test method and are important building
      * blocks of Junit tests.
      */
-    @Rule
-    var mNotesActivityTestRule = ActivityTestRule<NotesActivity>(NotesActivity::class.java)
+    @Rule @JvmField
+    var mNotesActivityTestRule: ActivityTestRule<NotesActivity> = ActivityTestRule(NotesActivity::class.java)
 
     @Test
     @Throws(Exception::class)
@@ -124,7 +114,7 @@ class NotesScreenTest {
 
         // Scroll notes list to added note, by finding its description
         onView(withId(R.id.notes_list)).perform(
-                scrollTo<ViewHolder>(hasDescendant(withText(newNoteDescription))))
+                scrollTo<RecyclerView.ViewHolder>(hasDescendant(withText(newNoteDescription))))
 
         // Verify note is displayed on screen
         onView(withItemText(newNoteDescription)).check(matches(isDisplayed()))

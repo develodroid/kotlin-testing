@@ -18,16 +18,14 @@ package com.example.android.testing.notes.notedetail
 
 import com.example.android.testing.notes.data.Note
 import com.example.android.testing.notes.data.NotesRepository
-
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentCaptor
 import org.mockito.Captor
-import org.mockito.Mock
-import org.mockito.MockitoAnnotations
-
 import org.mockito.Matchers.eq
+import org.mockito.Mock
 import org.mockito.Mockito.verify
+import org.mockito.MockitoAnnotations
 
 /**
  * Unit tests for the implementation of [NoteDetailPresenter]
@@ -69,15 +67,15 @@ class NotesDetailPresenterTest {
 
         // Then note is loaded from model, callback is captured and progress indicator is shown
         verify<NotesRepository>(mNotesRepository).getNote(eq(note.id), mGetNoteCallbackCaptor!!.capture())
-        verify<View>(mNoteDetailView).setProgressIndicator(true)
+        verify<NoteDetailContract.View>(mNoteDetailView).setProgressIndicator(true)
 
         // When note is finally loaded
         mGetNoteCallbackCaptor.value.onNoteLoaded(note) // Trigger callback
 
         // Then progress indicator is hidden and title and description are shown in UI
-        verify<View>(mNoteDetailView).setProgressIndicator(false)
-        verify<View>(mNoteDetailView).showTitle(TITLE_TEST)
-        verify<View>(mNoteDetailView).showDescription(DESCRIPTION_TEST)
+        verify<NoteDetailContract.View>(mNoteDetailView).setProgressIndicator(false)
+        verify<NoteDetailContract.View>(mNoteDetailView).showTitle(TITLE_TEST)
+        verify<NoteDetailContract.View>(mNoteDetailView).showDescription(DESCRIPTION_TEST)
     }
 
     @Test
@@ -87,15 +85,15 @@ class NotesDetailPresenterTest {
 
         // Then note with invalid id is attempted to load from model, callback is captured and
         // progress indicator is shown.
-        verify<View>(mNoteDetailView).setProgressIndicator(true)
+        verify<NoteDetailContract.View>(mNoteDetailView).setProgressIndicator(true)
         verify<NotesRepository>(mNotesRepository).getNote(eq(INVALID_ID), mGetNoteCallbackCaptor!!.capture())
 
         // When note is finally loaded
         mGetNoteCallbackCaptor.value.onNoteLoaded(null) // Trigger callback
 
         // Then progress indicator is hidden and missing note UI is shown
-        verify<View>(mNoteDetailView).setProgressIndicator(false)
-        verify<View>(mNoteDetailView).showMissingNote()
+        verify<NoteDetailContract.View>(mNoteDetailView).setProgressIndicator(false)
+        verify<NoteDetailContract.View>(mNoteDetailView).showMissingNote()
     }
 
     companion object {

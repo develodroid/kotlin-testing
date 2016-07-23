@@ -16,25 +16,16 @@
 
 package com.example.android.testing.notes.notes
 
-import com.google.common.collect.Lists
-
 import com.example.android.testing.notes.data.Note
 import com.example.android.testing.notes.data.NotesRepository
 import com.example.android.testing.notes.data.NotesRepository.LoadNotesCallback
-
+import com.google.common.collect.Lists
 import org.junit.Before
 import org.junit.Test
-import org.mockito.ArgumentCaptor
-import org.mockito.Captor
-import org.mockito.InOrder
-import org.mockito.Mock
-import org.mockito.Mockito
-import org.mockito.MockitoAnnotations
-
-import java.util.ArrayList
-
+import org.mockito.*
 import org.mockito.Matchers.any
 import org.mockito.Mockito.verify
+import java.util.*
 
 /**
  * Unit tests for the implementation of [NotesPresenter]
@@ -78,9 +69,9 @@ class NotesPresenterTest {
 
         // Then progress indicator is hidden and notes are shown in UI
         val inOrder = Mockito.inOrder(mNotesView)
-        inOrder.verify<View>(mNotesView).setProgressIndicator(true)
-        inOrder.verify<View>(mNotesView).setProgressIndicator(false)
-        verify<View>(mNotesView).showNotes(NOTES)
+        inOrder.verify<NotesContract.View>(mNotesView).setProgressIndicator(true)
+        inOrder.verify<NotesContract.View>(mNotesView).setProgressIndicator(false)
+        verify<NotesContract.View>(mNotesView).showNotes(NOTES)
     }
 
     @Test
@@ -89,7 +80,7 @@ class NotesPresenterTest {
         mNotesPresenter!!.addNewNote()
 
         // Then add note UI is shown
-        verify<View>(mNotesView).showAddNote()
+        verify<NotesContract.View>(mNotesView).showAddNote()
     }
 
     @Test
@@ -101,7 +92,7 @@ class NotesPresenterTest {
         mNotesPresenter!!.openNoteDetails(requestedNote)
 
         // Then note detail UI is shown
-        verify<View>(mNotesView).showNoteDetailUi(any<String>(String::class.java))
+        verify<NotesContract.View>(mNotesView).showNoteDetailUi(any<String>(String::class.java))
     }
 
     companion object {

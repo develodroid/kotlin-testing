@@ -19,19 +19,14 @@ package com.example.android.testing.notes.addnote
 import com.example.android.testing.notes.data.Note
 import com.example.android.testing.notes.data.NotesRepository
 import com.example.android.testing.notes.util.ImageFile
-
 import org.junit.Before
 import org.junit.Test
+import org.mockito.Matchers.*
 import org.mockito.Mock
-import org.mockito.MockitoAnnotations
-
-import java.io.IOException
-
-import org.mockito.Matchers.any
-import org.mockito.Matchers.anyString
-import org.mockito.Matchers.contains
-import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
+import org.mockito.Mockito.verify
+import org.mockito.MockitoAnnotations
+import java.io.IOException
 
 /**
  * Unit tests for the implementation of [AddNotePresenter].
@@ -66,7 +61,7 @@ class AddNotePresenterTest {
 
         // Then a note is,
         verify<NotesRepository>(mNotesRepository).saveNote(any<Note>(Note::class.java)) // saved to the model
-        verify<View>(mAddNoteView).showNotesList() // shown in the UI
+        verify<AddNoteContract.View>(mAddNoteView).showNotesList() // shown in the UI
     }
 
     @Test
@@ -75,7 +70,7 @@ class AddNotePresenterTest {
         mAddNotesPresenter!!.saveNote("", "")
 
         // Then an empty not error is shown in the UI
-        verify<View>(mAddNoteView).showEmptyNoteError()
+        verify<AddNoteContract.View>(mAddNoteView).showEmptyNoteError()
     }
 
     @Test
@@ -87,7 +82,7 @@ class AddNotePresenterTest {
         // Then an image file is created snd camera is opened
         verify<ImageFile>(mImageFile).create(anyString(), anyString())
         verify<ImageFile>(mImageFile).path
-        verify<View>(mAddNoteView).openCamera(anyString())
+        verify<AddNoteContract.View>(mAddNoteView).openCamera(anyString())
     }
 
     @Test
@@ -101,7 +96,7 @@ class AddNotePresenterTest {
         mAddNotesPresenter!!.imageAvailable()
 
         // Then the preview image of the stubbed image is shown in the UI
-        verify<View>(mAddNoteView).showImagePreview(contains(imageUrl))
+        verify<AddNoteContract.View>(mAddNoteView).showImagePreview(contains(imageUrl))
     }
 
     @Test
@@ -113,7 +108,7 @@ class AddNotePresenterTest {
         mAddNotesPresenter!!.imageAvailable()
 
         // Then an error is shown in the UI and the image file is deleted
-        verify<View>(mAddNoteView).showImageError()
+        verify<AddNoteContract.View>(mAddNoteView).showImageError()
         verify(mImageFile).delete()
     }
 
@@ -123,7 +118,7 @@ class AddNotePresenterTest {
         mAddNotesPresenter!!.imageCaptureFailed()
 
         // Then an error is shown in the UI and the image file is deleted
-        verify<View>(mAddNoteView).showImageError()
+        verify<AddNoteContract.View>(mAddNoteView).showImageError()
         verify<ImageFile>(mImageFile).delete()
     }
 
