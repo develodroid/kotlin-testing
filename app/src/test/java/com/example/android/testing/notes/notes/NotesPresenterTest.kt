@@ -19,33 +19,35 @@ package com.example.android.testing.notes.notes
 import com.example.android.testing.notes.data.Note
 import com.example.android.testing.notes.data.NotesRepository
 import com.example.android.testing.notes.data.NotesRepository.LoadNotesCallback
-import com.google.common.collect.Lists
 import org.junit.Before
 import org.junit.Test
 import org.mockito.*
 import org.mockito.Matchers.any
 import org.mockito.Mockito.verify
-import java.util.*
 
 /**
  * Unit tests for the implementation of [NotesPresenter]
  */
 class NotesPresenterTest {
 
-    @Mock
-    private val mNotesRepository: NotesRepository? = null
+    private val NOTES = arrayListOf(Note("Title1", "Description1"),
+            Note("Title2", "Description2"))
+
 
     @Mock
-    private val mNotesView: NotesContract.View? = null
+    lateinit private var mNotesRepository: NotesRepository
+
+    @Mock
+    lateinit private var mNotesView: NotesContract.View
 
     /**
      * [ArgumentCaptor] is a powerful Mockito API to capture argument values and use them to
      * perform further actions or assertions on them.
      */
     @Captor
-    private val mLoadNotesCallbackCaptor: ArgumentCaptor<LoadNotesCallback>? = null
+    lateinit private var mLoadNotesCallbackCaptor: ArgumentCaptor<LoadNotesCallback>
 
-    private var mNotesPresenter: NotesPresenter? = null
+    lateinit private var mNotesPresenter: NotesPresenter
 
     @Before
     fun setupNotesPresenter() {
@@ -54,33 +56,36 @@ class NotesPresenterTest {
         MockitoAnnotations.initMocks(this)
 
         // Get a reference to the class under test
-        mNotesPresenter = NotesPresenter(mNotesRepository!!, mNotesView!!)
+        mNotesPresenter = NotesPresenter(mNotesRepository, mNotesView)
     }
 
     @Test
     fun loadNotesFromRepositoryAndLoadIntoView() {
         // Given an initialized NotesPresenter with initialized notes
         // When loading of Notes is requested
-        mNotesPresenter!!.loadNotes(true)
+        mNotesPresenter.loadNotes(true)
 
         // Callback is captured and invoked with stubbed notes
-        verify<NotesRepository>(mNotesRepository).getNotes(mLoadNotesCallbackCaptor!!.capture())
+        verify(mNotesRepository).getNotes(mLoadNotesCallbackCaptor.capture())
         mLoadNotesCallbackCaptor.value.onNotesLoaded(NOTES)
 
         // Then progress indicator is hidden and notes are shown in UI
         val inOrder = Mockito.inOrder(mNotesView)
-        inOrder.verify<NotesContract.View>(mNotesView).setProgressIndicator(true)
-        inOrder.verify<NotesContract.View>(mNotesView).setProgressIndicator(false)
-        verify<NotesContract.View>(mNotesView).showNotes(NOTES)
+        with(inOrder.verify(mNotesView)){
+            setProgressIndicator(true)
+            setProgressIndicator(false)
+            showNotes(NOTES)
+        }
+
     }
 
     @Test
     fun clickOnFab_ShowsAddsNoteUi() {
         // When adding a new note
-        mNotesPresenter!!.addNewNote()
+        mNotesPresenter.addNewNote()
 
         // Then add note UI is shown
-        verify<NotesContract.View>(mNotesView).showAddNote()
+        verify(mNotesView).showAddNote()
     }
 
     @Test
@@ -89,17 +94,10 @@ class NotesPresenterTest {
         val requestedNote = Note("Details Requested", "For this note")
 
         // When open note details is requested
-        mNotesPresenter!!.openNoteDetails(requestedNote)
+        mNotesPresenter.openNoteDetails(requestedNote)
 
         // Then note detail UI is shown
-        verify<NotesContract.View>(mNotesView).showNoteDetailUi(any<String>(String::class.java))
+        verify(mNotesView).showNoteDetailUi(any(String::class.java))
     }
 
-    companion object {
-
-        private val NOTES = Lists.newArrayList(Note("Title1", "Description1"),
-                Note("Title2", "Description2"))
-
-        private val EMPTY_NOTES = ArrayList<Note>(0)
-    }
 }

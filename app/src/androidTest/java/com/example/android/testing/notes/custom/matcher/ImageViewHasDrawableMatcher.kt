@@ -29,7 +29,7 @@ import org.hamcrest.Matcher
 class ImageViewHasDrawableMatcher {
 
     fun hasDrawable(): BoundedMatcher<View, ImageView> {
-        return object : BoundedMatcher<View, ImageView>(ImageView::class.java!!) {
+        return object : BoundedMatcher<View, ImageView>(ImageView::class.java) {
             override fun describeTo(description: Description) {
                 description.appendText("has drawable")
             }

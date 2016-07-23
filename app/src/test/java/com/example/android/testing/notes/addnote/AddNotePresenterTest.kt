@@ -18,12 +18,12 @@ package com.example.android.testing.notes.addnote
 
 import com.example.android.testing.notes.data.Note
 import com.example.android.testing.notes.data.NotesRepository
+import com.example.android.testing.notes.alias._when
 import com.example.android.testing.notes.util.ImageFile
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Matchers.*
 import org.mockito.Mock
-import org.mockito.Mockito.`when`
 import org.mockito.Mockito.verify
 import org.mockito.MockitoAnnotations
 import java.io.IOException
@@ -34,15 +34,15 @@ import java.io.IOException
 class AddNotePresenterTest {
 
     @Mock
-    private val mNotesRepository: NotesRepository? = null
+    lateinit private var mNotesRepository: NotesRepository
 
     @Mock
-    private val mImageFile: ImageFile? = null
+    lateinit private var mImageFile: ImageFile
 
     @Mock
-    private val mAddNoteView: AddNoteContract.View? = null
+    lateinit private var mAddNoteView: AddNoteContract.View
 
-    private var mAddNotesPresenter: AddNotePresenter? = null
+    lateinit private var mAddNotesPresenter: AddNotePresenter
 
     @Before
     fun setupAddNotePresenter() {
@@ -51,75 +51,78 @@ class AddNotePresenterTest {
         MockitoAnnotations.initMocks(this)
 
         // Get a reference to the class under test
-        mAddNotesPresenter = AddNotePresenter(mNotesRepository!!, mAddNoteView!!, mImageFile!!)
+        mAddNotesPresenter = AddNotePresenter(mNotesRepository, mAddNoteView, mImageFile)
     }
 
     @Test
     fun saveNoteToRepository_showsSuccessMessageUi() {
         // When the presenter is asked to save a note
-        mAddNotesPresenter!!.saveNote("New Note Title", "Some Note Description")
+        mAddNotesPresenter.saveNote("New Note Title", "Some Note Description")
 
         // Then a note is,
-        verify<NotesRepository>(mNotesRepository).saveNote(any<Note>(Note::class.java)) // saved to the model
-        verify<AddNoteContract.View>(mAddNoteView).showNotesList() // shown in the UI
+        verify(mNotesRepository).saveNote(any<Note>(Note::class.java)) // saved to the model
+        verify(mAddNoteView).showNotesList() // shown in the UI
     }
 
     @Test
     fun saveNote_emptyNoteShowsErrorUi() {
         // When the presenter is asked to save an empty note
-        mAddNotesPresenter!!.saveNote("", "")
+        mAddNotesPresenter.saveNote("", "")
 
         // Then an empty not error is shown in the UI
-        verify<AddNoteContract.View>(mAddNoteView).showEmptyNoteError()
+        verify(mAddNoteView).showEmptyNoteError()
     }
 
     @Test
     @Throws(IOException::class)
     fun takePicture_CreatesFileAndOpensCamera() {
         // When the presenter is asked to take an image
-        mAddNotesPresenter!!.takePicture()
+        mAddNotesPresenter.takePicture()
 
         // Then an image file is created snd camera is opened
-        verify<ImageFile>(mImageFile).create(anyString(), anyString())
-        verify<ImageFile>(mImageFile).path
-        verify<AddNoteContract.View>(mAddNoteView).openCamera(anyString())
+        with(verify(mImageFile)){
+            create(anyString(), anyString())
+            path
+        }
+
+        verify(mAddNoteView).openCamera(anyString())
     }
 
     @Test
     fun imageAvailable_SavesImageAndUpdatesUiWithThumbnail() {
         // Given an a stubbed image file
         val imageUrl = "path/to/file"
-        `when`(mImageFile!!.exists()).thenReturn(true)
-        `when`(mImageFile.path).thenReturn(imageUrl)
+        _when(mImageFile.exists()).thenReturn(true)
+        _when(mImageFile.path).thenReturn(imageUrl)
 
         // When an image is made available to the presenter
-        mAddNotesPresenter!!.imageAvailable()
+        mAddNotesPresenter.imageAvailable()
 
         // Then the preview image of the stubbed image is shown in the UI
-        verify<AddNoteContract.View>(mAddNoteView).showImagePreview(contains(imageUrl))
+        verify(mAddNoteView).showImagePreview(contains(imageUrl))
     }
 
     @Test
     fun imageAvailable_FileDoesNotExistShowsErrorUi() {
         // Given the image file does not exist
-        `when`(mImageFile!!.exists()).thenReturn(false)
+        _when(mImageFile.exists()).thenReturn(false)
 
         // When an image is made available to the presenter
-        mAddNotesPresenter!!.imageAvailable()
+        mAddNotesPresenter.imageAvailable()
 
         // Then an error is shown in the UI and the image file is deleted
-        verify<AddNoteContract.View>(mAddNoteView).showImageError()
+        verify(mAddNoteView).showImageError()
         verify(mImageFile).delete()
     }
 
     @Test
     fun noImageAvailable_ShowsErrorUi() {
         // When the presenter is notified that image capturing failed
-        mAddNotesPresenter!!.imageCaptureFailed()
+        mAddNotesPresenter.imageCaptureFailed()
 
         // Then an error is shown in the UI and the image file is deleted
-        verify<AddNoteContract.View>(mAddNoteView).showImageError()
-        verify<ImageFile>(mImageFile).delete()
+        verify(mAddNoteView).showImageError()
+        verify(mImageFile).delete()
     }
 
 }

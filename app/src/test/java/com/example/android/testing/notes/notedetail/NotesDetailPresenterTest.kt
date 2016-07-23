@@ -32,20 +32,26 @@ import org.mockito.MockitoAnnotations
  */
 class NotesDetailPresenterTest {
 
-    @Mock
-    private val mNotesRepository: NotesRepository? = null
+    private val INVALID_ID = "INVALID_ID"
+
+    private val TITLE_TEST = "title"
+
+    private val DESCRIPTION_TEST = "description"
 
     @Mock
-    private val mNoteDetailView: NoteDetailContract.View? = null
+    lateinit private var mNotesRepository: NotesRepository
+
+    @Mock
+    lateinit private var mNoteDetailView: NoteDetailContract.View
 
     /**
      * [ArgumentCaptor] is a powerful Mockito API to capture argument values and use them to
      * perform further actions or assertions on them.
      */
     @Captor
-    private val mGetNoteCallbackCaptor: ArgumentCaptor<NotesRepository.GetNoteCallback>? = null
+    lateinit private var mGetNoteCallbackCaptor: ArgumentCaptor<NotesRepository.GetNoteCallback>
 
-    private var mNotesDetailsPresenter: NoteDetailPresenter? = null
+    lateinit private var mNotesDetailsPresenter: NoteDetailPresenter
 
     @Before
     fun setupNotesPresenter() {
@@ -54,7 +60,7 @@ class NotesDetailPresenterTest {
         MockitoAnnotations.initMocks(this)
 
         // Get a reference to the class under test
-        mNotesDetailsPresenter = NoteDetailPresenter(mNotesRepository!!, mNoteDetailView!!)
+        mNotesDetailsPresenter = NoteDetailPresenter(mNotesRepository, mNoteDetailView)
     }
 
     @Test
@@ -63,45 +69,41 @@ class NotesDetailPresenterTest {
         val note = Note(TITLE_TEST, DESCRIPTION_TEST)
 
         // When notes presenter is asked to open a note
-        mNotesDetailsPresenter!!.openNote(note.id)
+        mNotesDetailsPresenter.openNote(note.id)
 
         // Then note is loaded from model, callback is captured and progress indicator is shown
-        verify<NotesRepository>(mNotesRepository).getNote(eq(note.id), mGetNoteCallbackCaptor!!.capture())
-        verify<NoteDetailContract.View>(mNoteDetailView).setProgressIndicator(true)
+        verify(mNotesRepository).getNote(eq(note.id), mGetNoteCallbackCaptor.capture())
+        verify(mNoteDetailView).setProgressIndicator(true)
 
         // When note is finally loaded
         mGetNoteCallbackCaptor.value.onNoteLoaded(note) // Trigger callback
 
         // Then progress indicator is hidden and title and description are shown in UI
-        verify<NoteDetailContract.View>(mNoteDetailView).setProgressIndicator(false)
-        verify<NoteDetailContract.View>(mNoteDetailView).showTitle(TITLE_TEST)
-        verify<NoteDetailContract.View>(mNoteDetailView).showDescription(DESCRIPTION_TEST)
+        with(verify(mNoteDetailView)){
+            setProgressIndicator(false)
+            showTitle(TITLE_TEST)
+            showDescription(DESCRIPTION_TEST)
+        }
     }
 
     @Test
     fun getUnknownNoteFromRepositoryAndLoadIntoView() {
         // When loading of a note is requested with an invalid note ID.
-        mNotesDetailsPresenter!!.openNote(INVALID_ID)
+        mNotesDetailsPresenter.openNote(INVALID_ID)
 
         // Then note with invalid id is attempted to load from model, callback is captured and
         // progress indicator is shown.
-        verify<NoteDetailContract.View>(mNoteDetailView).setProgressIndicator(true)
-        verify<NotesRepository>(mNotesRepository).getNote(eq(INVALID_ID), mGetNoteCallbackCaptor!!.capture())
+        verify(mNoteDetailView).setProgressIndicator(true)
+        verify(mNotesRepository).getNote(eq(INVALID_ID), mGetNoteCallbackCaptor.capture())
 
         // When note is finally loaded
         mGetNoteCallbackCaptor.value.onNoteLoaded(null) // Trigger callback
 
         // Then progress indicator is hidden and missing note UI is shown
-        verify<NoteDetailContract.View>(mNoteDetailView).setProgressIndicator(false)
-        verify<NoteDetailContract.View>(mNoteDetailView).showMissingNote()
+        with( verify(mNoteDetailView)){
+            setProgressIndicator(false)
+            showMissingNote()
+        }
     }
 
-    companion object {
-
-        val INVALID_ID = "INVALID_ID"
-
-        val TITLE_TEST = "title"
-
-        val DESCRIPTION_TEST = "description"
-    }
 }

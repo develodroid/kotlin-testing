@@ -17,7 +17,10 @@
 package com.example.android.testing.notes.util
 
 import android.os.Environment
-import org.hamcrest.CoreMatchers.*
+import com.example.android.testing.notes.alias._is
+import com.example.android.testing.notes.alias._when
+import org.hamcrest.CoreMatchers.notNullValue
+import org.hamcrest.CoreMatchers.nullValue
 import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -25,7 +28,6 @@ import org.junit.runner.RunWith
 import org.mockito.Matchers.anyString
 import org.mockito.Matchers.eq
 import org.mockito.Mock
-import org.powermock.api.mockito.PowerMockito.`when`
 import org.powermock.api.mockito.PowerMockito.mockStatic
 import org.powermock.core.classloader.annotations.PrepareForTest
 import org.powermock.modules.junit4.PowerMockRunner
@@ -54,15 +56,14 @@ import java.io.IOException
 class ImageFileTest {
 
     @Mock
-    private val mDirectory: File? = null
+    lateinit private var mDirectory: File
 
     @Mock
-    private val mImageFile: File? = null
+    lateinit private var mImageFile: File
 
-    private var mFileHelper: ImageFileImpl? = null
+    lateinit private var mFileHelper: ImageFileImpl
 
     @Before
-    @Throws(IOException::class)
     fun createImageFile() {
         // Get a reference to the class under test
         mFileHelper = ImageFileImpl()
@@ -72,22 +73,21 @@ class ImageFileTest {
     }
 
     @Test
-    @Throws(IOException::class)
     fun create_SetsImageFile() {
         // When file helper is asked to create a file
-        mFileHelper!!.create("Name", "Extension")
+        mFileHelper.create("Name", "Extension")
 
         // Then the created file is stored inside the image file.
-        assertThat(mFileHelper!!.mImageFile, `is`(notNullValue<Any>()))
+        assertThat(mFileHelper.mImageFile, _is(notNullValue()))
     }
 
     @Test
     fun deleteImageFile() {
         // When file should be deleted
-        mFileHelper!!.delete()
+        mFileHelper.delete()
 
         // Then stored file is deleted
-        assertThat(mFileHelper!!.mImageFile, `is`(nullValue<Any>()))
+        assertThat(mFileHelper.mImageFile, _is(nullValue()))
     }
 
     /**
@@ -96,12 +96,12 @@ class ImageFileTest {
     @Throws(IOException::class)
     private fun withStaticallyMockedEnvironmentAndFileApis() {
         // Setup mocking for Environment and File classes
-        mockStatic(Environment::class.java!!, File::class.java)
+        mockStatic(Environment::class.java, File::class.java)
 
         // Make the Environment class return a mocked external storage directory
-        `when`(Environment.getExternalStorageDirectory()).thenReturn(mDirectory)
+        _when(Environment.getExternalStorageDirectory()).thenReturn(mDirectory)
 
         // Make the File class return a mocked image file
-        `when`(File.createTempFile(anyString(), anyString(), eq<File>(mDirectory))).thenReturn(mImageFile)
+        _when(File.createTempFile(anyString(), anyString(), eq(mDirectory))).thenReturn(mImageFile)
     }
 }

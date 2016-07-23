@@ -42,6 +42,17 @@ import org.junit.runner.RunWith
 @LargeTest
 class NoteDetailScreenTest {
 
+    private val NOTE_TITLE = "ATSL"
+
+    private val NOTE_DESCRIPTION = "Rocks"
+
+    private val NOTE_IMAGE = "file:///android_asset/atsl-logo.png"
+
+    /**
+     * [Note] stub that is added to the fake service API layer.
+     */
+    private val NOTE = Note(NOTE_TITLE, NOTE_DESCRIPTION, NOTE_IMAGE)
+
     /**
      * [ActivityTestRule] is a JUnit [@Rule][Rule] to launch your activity under test.
 
@@ -86,7 +97,6 @@ class NoteDetailScreenTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun noteDetails_DisplayedInUi() {
         // Check that the note title, description and image are displayed
         onView(withId(R.id.note_detail_title)).check(matches(withText(NOTE_TITLE)))
@@ -115,17 +125,4 @@ class NoteDetailScreenTest {
                 mNoteDetailActivityTestRule.activity.countingIdlingResource)
     }
 
-    companion object {
-
-        private val NOTE_TITLE = "ATSL"
-
-        private val NOTE_DESCRIPTION = "Rocks"
-
-        private val NOTE_IMAGE = "file:///android_asset/atsl-logo.png"
-
-        /**
-         * [Note] stub that is added to the fake service API layer.
-         */
-        private val NOTE = Note(NOTE_TITLE, NOTE_DESCRIPTION, NOTE_IMAGE)
-    }
 }

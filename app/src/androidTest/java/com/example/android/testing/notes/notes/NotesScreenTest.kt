@@ -25,7 +25,6 @@ import android.support.test.filters.LargeTest
 import android.support.test.rule.ActivityTestRule
 import android.support.test.runner.AndroidJUnit4
 import android.support.v7.widget.RecyclerView
-import android.text.TextUtils
 import android.view.View
 import com.example.android.testing.notes.R
 import com.google.common.base.Preconditions.checkArgument
@@ -59,16 +58,16 @@ class NotesScreenTest {
      * @return Matcher that matches text in the given view
      */
     private fun withItemText(itemText: String): Matcher<View> {
-        checkArgument(!TextUtils.isEmpty(itemText), "itemText cannot be null or empty")
+        checkArgument(itemText.isNotEmpty(), "itemText cannot be null or empty")
         return object : TypeSafeMatcher<View>() {
             public override fun matchesSafely(item: View): Boolean {
                 return allOf(
-                        isDescendantOfA(isAssignableFrom(RecyclerView::class.java!!)),
+                        isDescendantOfA(isAssignableFrom(RecyclerView::class.java)),
                         withText(itemText)).matches(item)
             }
 
             override fun describeTo(description: Description) {
-                description.appendText("is isDescendantOfA RV with text " + itemText)
+                description.appendText("is isDescendantOfA RV with text $itemText")
             }
         }
     }
